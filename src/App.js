@@ -1,80 +1,64 @@
 import logo from './logo.svg';
 import './App.css';
 
+import React from "react";
+import { Routes, Route, Link } from "react-router-dom";
+// import "bootstrap/dist/css/bootstrap.mini.css";
+
 import { db } from "./firebase";
 import { uid } from "uid";
 import { set, ref, onValue } from 'firebase/database';
 import { useState, useEffect } from "react";
+
+import AddCustomer from "./components/add-customer.component";
+import Customers from "./components/customers.component";
 
 function App() {
   const [customer, setCustomer] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [transaction, setTransaction] = useState(null);
   const [rewardPoints, setRewardPoints] = useState(null);
-
-  const handleCustomerChange = (e) => {
-    setCustomer(e.target.value);
-  }
-
-  const handleTransactionChange = (e) => {
-    setTransaction(e.target.value);
-  }
-
-  //read
-  useEffect(()=> {
-    onValue(ref(db), snapshot => {
-      setCustomers([]);
-      const data = snapshot.val();
-      if(data !== null){
-        Object.values(data).map((customer) => {
-          setCustomers((oldArray) => [...oldArray, customer]);
-          console.log(customer);
-        });
-      }
-    })
-    console.log(customers);    
-  }, []);
-
-  const listItems = customers.map((customer) => {
-    return (
-      <ul>
-        <li>{customer.customer}</li>
-        <li>{customer.transaction}</li>
-      </ul>
-    )
-  })
-
-  //write
-  const writeToDatabase = () => {
-    const uuid = uid()
-    set(ref(db, `/${uuid}`), {
-      customer,
-      transaction,
-      rewardPoints,
-      uuid
-    })
-
-    setCustomer("");
-    setTransaction("");
-
-    console.log(customers);
-  }
   
   //update
   //delete
 
   return (
-    <div className="App">
-      <header>
-        Hello!
-      </header>
-      <input type="text" value={customer} onChange={handleCustomerChange}></input>
-      <input type="text" value={transaction} onChange={handleTransactionChange}></input>
-      <button onClick={writeToDatabase}>Submit</button>
-      <div>
-        {listItems}
-      </div>  
+    <div>
+      <nav className="navbar navbar-expand navbar-dark bg-dark p-2">
+        <Link to={"/"} className="navbar-brand">
+          Reward Program 
+        </Link>
+        <div className="navbar-nav mr-auto">
+          <li className="nav-item">
+            <Link to={"/customers"} className="nav-link">
+            Customers
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to={"/add"} className="nav-link">
+              Add
+            </Link>
+          </li>
+        </div>
+      </nav>
+
+      <div className="container mt-3">
+        <Routes>
+          <Route exact path="/customers" element={<Customers/>} />
+          <Route exact path="/add" element={<AddCustomer/>} />
+          {/* <Route path="/customer/:id" component={Customer} /> */}
+        </Routes>
+      </div>
     </div>
+    // <div className="App">
+    //   <header>
+    //     Hello!
+    //   </header>
+    //   
+    //   <div>
+    //     {listItems}
+    //   </div>  
+    // </div>
   );
 }
 
